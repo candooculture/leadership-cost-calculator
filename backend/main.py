@@ -74,11 +74,11 @@ def get_industry_benchmark_pct(industry: str) -> float:
     return float(v) if v is not None else DEFAULT_BENCHMARK_PCT
 
 
-def aud(n: Any) -> str:
+def AED(n: Any) -> str:
     try:
-        return f"AUD ${float(n):,.0f}"
+        return f"AED ${float(n):,.0f}"
     except Exception:
-        return "AUD $0"
+        return "AED $0"
 
 
 @app.get("/health")
@@ -178,10 +178,10 @@ def send_email(req: EmailReportRequest):
       <div class="box">
         <div class="muted">Summary</div>
         <table>
-          <tr><td>Monthly Leadership Cost</td><td>{aud(result.get("monthly_cost"))}</td></tr>
-          <tr><td>Annual Leadership Cost</td><td>{aud(result.get("annual_cost"))}</td></tr>
-          <tr><td>Cost Per Employee</td><td>{aud(result.get("cost_per_employee"))}</td></tr>
-          <tr><td>Recoverable Profit Opportunity (Annual)</td><td>{aud(result.get("recoverable_profit"))}</td></tr>
+          <tr><td>Monthly Leadership Cost</td><td>{AED(result.get("monthly_cost"))}</td></tr>
+          <tr><td>Annual Leadership Cost</td><td>{AED(result.get("annual_cost"))}</td></tr>
+          <tr><td>Cost Per Employee</td><td>{AED(result.get("cost_per_employee"))}</td></tr>
+          <tr><td>Recoverable Profit Opportunity (Annual)</td><td>{AED(result.get("recoverable_profit"))}</td></tr>
         </table>
       </div>
 
