@@ -29,19 +29,19 @@ def calculate_leadership_misalignment_cost(
     payroll = float(employees) * avg_salary
 
     drag_rate = misalignment_pct / 100.0
-    benchmark_rate = industry_benchmark_pct / 100.0
-
     annual_cost = payroll * drag_rate
     monthly_cost = annual_cost / 12.0
 
-    cost_per_employee = (annual_cost / float(employees)
-                         ) if employees > 0 else 0.0
+    cost_per_employee = (annual_cost / float(employees)) if employees > 0 else 0.0
 
+    # Benchmark comparison for display
+    excess_pct = max(0.0, misalignment_pct - industry_benchmark_pct)
+
+    # Recoverable opportunity against high-performance target
     TARGET_MISALIGNMENT_PCT = 5.0
-    
     recoverable_pct = max(0.0, misalignment_pct - TARGET_MISALIGNMENT_PCT)
     recoverable_rate = recoverable_pct / 100.0
-    recoverable_profit = payroll * recoverable_rate  # annual
+    recoverable_profit = payroll * recoverable_rate
 
     return MisalignmentCalcResult(
         monthly_cost=monthly_cost,
