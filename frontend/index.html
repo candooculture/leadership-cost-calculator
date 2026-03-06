@@ -442,27 +442,24 @@ small{
         }
 
         async function prefillBenchmark() {
-            const v = industry.value;
-            if (!v) return;
-            try {
-                const r = await fetch(`${API_BASE}/benchmarks/leadership-misalignment?industry=${encodeURIComponent(v)}`);
-                const j = await r.json();
-                if (j.industry_benchmark_pct != null && String(misalignment.value || "").trim() === "") {
-                    misalignment.value = Number(j.industry_benchmark_pct).toFixed(1);
-                }
-            } catch (e) {}
+    const v = industry.value;
+    if (!v) return;
+    try {
+        const r = await fetch(`${API_BASE}/benchmarks/leadership-misalignment?industry=${encodeURIComponent(v)}`);
+        const j = await r.json();
+        if (j.industry_benchmark_pct != null && String(misalignment.value || "").trim() === "") {
+            misalignment.value = Number(j.industry_benchmark_pct).toFixed(1);
         }
+    } catch (e) {}
+}
 
-        industry.addEventListener("change", () => {
-            localStorage.setItem("industry", industry.value);
-            prefillBenchmark();
-        });
+industry.addEventListener("change", () => {
+    misalignment.value = "";
+    prefillBenchmark();
+});
 
-        const saved = localStorage.getItem("industry");
-        if (saved) {
-            industry.value = saved;
-            prefillBenchmark();
-        }
+industry.value = "";
+misalignment.value = "";
 
         form.addEventListener("submit", async (e) => {
             e.preventDefault();
