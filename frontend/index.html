@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Leadership Misalignment Cost</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600&display=swap" rel="stylesheet" />
+    <style>
+        :root {
+            --bg: #0e0f12;
+            --panel: #151720;
+            --text: #f3f4f6;
+            --muted: #a3a3a3;
+            --line: rgba(255, 255, 255, .12);
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: "DM Sans", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+        }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--text);
+            padding: 26px 14px;
+        }
+
+        .wrap {
+            max-width: 860px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            margin: 0 0 6px;
+            font-size: 2rem;
+        }
+
+        .subhead {
+            margin: 0 0 18px;
+            color: var(--muted);
+        }
+
+        .panel {
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            padding: 16px;
+        }
+
+        .info {
+            margin-bottom: 14px;
+            color: var(--muted);
+            line-height: 1.4;
+        }
+
+        label {
+            display: block;
+            margin: 12px 0 6px;
+            color: #e5e7eb;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 11px 12px;
+            border-radius: 12px;
+            border: 1px solid var(--line);
+            background: #0f1118;
+            color: var(--text);
+            outline: none;
+        }
+
+        small {
+            display: block;
+            margin-top: 6px;
+            color: var(--muted);
+        }
+
+        .helper {
+            margin-top: 8px;
+            color: var(--muted);
+            line-height: 1.35;
+        }
+
+        .row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .btn {
+            margin-top: 14px;
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 12px;
+            border: 0;
+            cursor: pointer;
+            font-weight: 700;
+        }
+
+        .results {
+            display: none;
+            margin-top: 16px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .metric {
+            background: #0f1118;
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            padding: 14px;
+        }
+
+        .metric .k {
+            color: var(--muted);
+            font-size: .92rem;
+            margin-bottom: 6px;
+        }
+
+        .metric .v {
+            font-size: 1.55rem;
+            font-weight: 700;
+        }
+
+        .benchline {
+            margin-top: 12px;
+            color: var(--muted);
+        }
+
+        .insight {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid var(--line);
+            line-height: 1.45;
+        }
+
+        .email {
+            margin-top: 14px;
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 10px;
+        }
+
+        .email button {
+            padding: 11px 14px;
+            border-radius: 12px;
+            border: 0;
+            cursor: pointer;
+            font-weight: 700;
+        }
+
+        .status {
+            margin-top: 8px;
+            color: var(--muted);
+        }
+
+        .cta {
+            margin-top: 16px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .cta a {
+            display: inline-block;
+            padding: 10px 12px;
+            border-radius: 12px;
+            border: 1px solid var(--line);
+            color: var(--text);
+            text-decoration: none;
+        }
+
+        @media (max-width: 740px) {
+            .row {
+                grid-template-columns: 1fr;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .email {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrap">
+        <h1>Leadership Misalignment Cost</h1>
+        <div class="subhead">The hidden cost of leadership drag inside your organisation.</div>
+
+        <div class="panel">
+            <div class="info">
+                <strong>We’ve pre-filled your industry benchmark to save you time.</strong><br />
+                If you have your own estimate, overwrite it to sharpen the result.
+            </div>
+
+            <form id="form">
+                <label for="industry">Industry</label>
+                <select id="industry" name="industry" required>
+                    <option value="">Select your industry</option>
+                    <option>Agriculture / Farming</option>
+                    <option>Construction</option>
+                    <option>Education &amp; Training</option>
+                    <option>Finance &amp; Insurance</option>
+                    <option>Government / Public Sector</option>
+                    <option>Healthcare</option>
+                    <option>Hospitality</option>
+                    <option>Integrated Services</option>
+                    <option>Logistics &amp; Transport</option>
+                    <option>Manufacturing</option>
+                    <option>Media / Creative / Comms</option>
+                    <option>Non-Profit</option>
+                    <option>Professional Services</option>
+                    <option>Real Estate &amp; Property</option>
+                    <option>Retail</option>
+                    <option>Technology / SaaS</option>
+                    <option>Utilities / Energy / Waste</option>
+                </select>
+
+                <div class="row">
+                    <div>
+                        <label for="total_employees">Total Employees</label>
+                        <input id="total_employees" name="total_employees" type="number" min="1" required />
+                    </div>
+                    <div>
+                        <label for="avg_salary">Average Annual Salary (AUD)</label>
+                        <input id="avg_salary" name="avg_salary" type="number" step="0.01" min="0" required />
+                        <small>Annual salary including super, across the team</small>
+                    </div>
+                </div>
+
+                <label for="misalignment_pct">Estimated Misalignment (% of Payroll)</label>
+                <input id="misalignment_pct" name="misalignment_pct" type="number" step="0.1" min="0" max="100"
+                    required />
+                <div class="helper">
+                    Not sure? Leave the benchmark. Most organisations sit between 8% and 15% depending on structure and
+                    management maturity.
+                </div>
+
+                <button class="btn" type="submit">Calculate</button>
+            </form>
+
+            <div class="results" id="results">
+                <div class="grid">
+                    <div class="metric">
+                        <div class="k">Monthly Leadership Cost</div>
+                        <div class="v" id="m_monthly">AUD $0</div>
+                    </div>
+                    <div class="metric">
+                        <div class="k">Annual Leadership Cost</div>
+                        <div class="v" id="m_annual">AUD $0</div>
+                    </div>
+                    <div class="metric">
+                        <div class="k">Cost Per Employee</div>
+                        <div class="v" id="m_per">AUD $0</div>
+                    </div>
+                    <div class="metric">
+                        <div class="k">Recoverable Profit Opportunity (Annual)</div>
+                        <div class="v" id="m_rec">AUD $0</div>
+                    </div>
+                </div>
+
+                <div class="benchline" id="benchline"></div>
+                <div class="insight" id="insight"></div>
+
+                <div class="email">
+                    <input id="email" type="email" placeholder="Optional: email me a copy of this result" />
+                    <button id="send" type="button">Email results</button>
+                </div>
+                <div class="status" id="status"></div>
+
+                <div class="cta">
+                    <a href="tel:+61455460580">Book a Strategy Call</a>
+                    <a
+                        href="mailto:aaron@candooculture.com?subject=Leadership%20Misalignment%20Cost%20-%20Next%20Steps">Prefer
+                        Email? Talk next steps</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Paste your Render backend URL here after deployment:
+        const API_BASE = "https://YOUR-BACKEND.onrender.com";
+
+        const form = document.getElementById("form");
+        const industry = document.getElementById("industry");
+        const misalignment = document.getElementById("misalignment_pct");
+
+        const results = document.getElementById("results");
+        const mMonthly = document.getElementById("m_monthly");
+        const mAnnual = document.getElementById("m_annual");
+        const mPer = document.getElementById("m_per");
+        const mRec = document.getElementById("m_rec");
+        const benchline = document.getElementById("benchline");
+        const insight = document.getElementById("insight");
+
+        const email = document.getElementById("email");
+        const sendBtn = document.getElementById("send");
+        const status = document.getElementById("status");
+
+        let lastInput = null;
+        let lastResult = null;
+
+        function fmtAUD(n) {
+            const v = Number(n || 0);
+            return "AUD $" + Math.round(v).toLocaleString("en-AU");
+        }
+
+        async function prefillBenchmark() {
+            const v = industry.value;
+            if (!v) return;
+            try {
+                const r = await fetch(`${API_BASE}/benchmarks/leadership-misalignment?industry=${encodeURIComponent(v)}`);
+                const j = await r.json();
+                if (j.industry_benchmark_pct != null && String(misalignment.value || "").trim() === "") {
+                    misalignment.value = Number(j.industry_benchmark_pct).toFixed(1);
+                }
+            } catch (e) { }
+        }
+
+        industry.addEventListener("change", () => {
+            localStorage.setItem("industry", industry.value);
+            prefillBenchmark();
+        });
+
+        const saved = localStorage.getItem("industry");
+        if (saved) { industry.value = saved; prefillBenchmark(); }
+
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            status.textContent = "";
+            results.style.display = "none";
+            lastInput = Object.fromEntries(new FormData(form).entries());
+            Object.keys(lastInput).forEach(k => { if (!isNaN(lastInput[k])) lastInput[k] = Number(lastInput[k]); });
+
+            try {
+                const r = await fetch(`${API_BASE}/run-leadership-misalignment`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(lastInput)
+                });
+                const j = await r.json();
+                if (!r.ok) throw new Error(j?.detail || "Request failed");
+
+                lastResult = j;
+
+                mMonthly.textContent = fmtAUD(j.monthly_cost);
+                mAnnual.textContent = fmtAUD(j.annual_cost);
+                mPer.textContent = fmtAUD(j.cost_per_employee);
+                mRec.textContent = fmtAUD(j.recoverable_profit);
+
+                const bench = Number(j.industry_benchmark_pct || 0);
+                const user = Number(j.user_misalignment_pct || 0);
+                const excess = Number(j.excess_pct || 0);
+
+                benchline.textContent =
+                    `Benchmark: ${bench.toFixed(1)}% | Your estimate: ${user.toFixed(1)}%` +
+                    (excess > 0 ? ` | Above benchmark: ${excess.toFixed(1)}%` : ` | At or below benchmark`);
+
+                const annual = fmtAUD(j.annual_cost);
+                if (excess > 0) {
+                    const rec = fmtAUD(j.recoverable_profit);
+                    insight.textContent =
+                        `Straight talk: leadership inefficiencies may be costing you about ${annual} per year. ` +
+                        `If you reduce misalignment back to benchmark, you could recover roughly ${rec} annually without hiring more people.`;
+                } else {
+                    insight.textContent =
+                        `Straight talk: leadership inefficiencies may be costing you about ${annual} per year. ` +
+                        `You are at or below benchmark, which usually means the next gains come from tightening clarity, cadence, and accountability.`;
+                }
+
+                results.style.display = "block";
+            } catch (err) {
+                alert("Error calculating. Check the backend URL and try again.");
+            }
+        });
+
+        sendBtn.addEventListener("click", async () => {
+            const addr = String(email.value || "").trim();
+            if (!addr || !addr.includes("@")) { status.textContent = "Enter a valid email."; return; }
+            if (!lastInput || !lastResult) { status.textContent = "Run the calculator first."; return; }
+
+            status.textContent = "Sending...";
+            sendBtn.disabled = true;
+
+            try {
+                const r = await fetch(`${API_BASE}/send-leadership-misalignment-report`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ email: addr, inputs: lastInput, result: lastResult })
+                });
+                const j = await r.json();
+                if (!r.ok) throw new Error(j?.detail || "Email send failed");
+                status.textContent = "Sent. Check your inbox.";
+            } catch (e) {
+                status.textContent = "Could not send. Try again.";
+            } finally {
+                sendBtn.disabled = false;
+            }
+        });
+    </script>
+</body>
+
+</html>
