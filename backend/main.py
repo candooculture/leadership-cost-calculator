@@ -15,7 +15,7 @@ from calculator import calculate_leadership_misalignment_cost
 
 APP_DIR = Path(__file__).resolve().parent
 BENCHMARKS_PATH = APP_DIR / "benchmarks.json"
-DEFAULT_BENCHMARK_PCT = 10.0
+DEFAULT_BENCHMARK_PCT = 18.0
 
 
 def load_benchmarks() -> Dict[str, float]:
