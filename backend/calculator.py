@@ -37,9 +37,11 @@ def calculate_leadership_misalignment_cost(
     cost_per_employee = (annual_cost / float(employees)
                          ) if employees > 0 else 0.0
 
-    excess_pct = max(0.0, misalignment_pct - industry_benchmark_pct)
-    excess_rate = excess_pct / 100.0
-    recoverable_profit = payroll * excess_rate  # annual
+    TARGET_MISALIGNMENT_PCT = 5.0
+    
+    recoverable_pct = max(0.0, misalignment_pct - TARGET_MISALIGNMENT_PCT)
+    recoverable_rate = recoverable_pct / 100.0
+    recoverable_profit = payroll * recoverable_rate  # annual
 
     return MisalignmentCalcResult(
         monthly_cost=monthly_cost,
