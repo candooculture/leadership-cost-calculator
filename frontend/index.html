@@ -360,7 +360,7 @@ small{
                         <input id="total_employees" name="total_employees" type="number" min="1" required />
                     </div>
                     <div>
-                        <label for="avg_salary">Average Annual Salary (AUD)</label>
+                        <label for="avg_salary">Average Annual Salary (AED)</label>
                         <input id="avg_salary" name="avg_salary" type="number" step="0.01" min="0" required />
                         <small>Annual salary including super, across the team</small>
                     </div>
@@ -380,19 +380,19 @@ small{
                 <div class="grid">
                     <div class="metric">
                         <div class="k">Monthly Leadership Cost</div>
-                        <div class="v" id="m_monthly">AUD $0</div>
+                        <div class="v" id="m_monthly">AED $0</div>
                     </div>
                     <div class="metric">
                         <div class="k">Annual Leadership Cost</div>
-                        <div class="v" id="m_annual">AUD $0</div>
+                        <div class="v" id="m_annual">AED $0</div>
                     </div>
                     <div class="metric">
                         <div class="k">Cost Per Employee</div>
-                        <div class="v" id="m_per">AUD $0</div>
+                        <div class="v" id="m_per">AED $0</div>
                     </div>
                     <div class="metric">
                         <div class="k">Recoverable Profit Opportunity (Annual)</div>
-                        <div class="v" id="m_rec">AUD $0</div>
+                        <div class="v" id="m_rec">AED $0</div>
                     </div>
                 </div>
 
@@ -436,9 +436,9 @@ small{
         let lastInput = null;
         let lastResult = null;
 
-        function fmtAUD(n) {
+        function fmtAED(n) {
             const v = Number(n || 0);
-            return "AUD $" + Math.round(v).toLocaleString("en-AU");
+            return "AED $" + Math.round(v).toLocaleString("en-AU");
         }
 
         async function prefillBenchmark() {
@@ -481,10 +481,10 @@ misalignment.value = "";
 
                 lastResult = j;
 
-                mMonthly.textContent = fmtAUD(j.monthly_cost);
-                mAnnual.textContent = fmtAUD(j.annual_cost);
-                mPer.textContent = fmtAUD(j.cost_per_employee);
-                mRec.textContent = fmtAUD(j.recoverable_profit);
+                mMonthly.textContent = fmtAED(j.monthly_cost);
+                mAnnual.textContent = fmtAED(j.annual_cost);
+                mPer.textContent = fmtAED(j.cost_per_employee);
+                mRec.textContent = fmtAED(j.recoverable_profit);
 
                 const bench = Number(j.industry_benchmark_pct || 0);
                 const user = Number(j.user_misalignment_pct || 0);
@@ -494,7 +494,7 @@ misalignment.value = "";
                     `Industry benchmark: ${bench.toFixed(1)}% | Your estimate: ${user.toFixed(1)}%` +
                     (excess > 0 ? ` | Above typical industry range.` : ` | Within typical industry range.`);
 
-                const annual = fmtAUD(j.annual_cost);
+                const annual = fmtAED(j.annual_cost);
 
                 if (excess > 0) {
                     insight.textContent =
