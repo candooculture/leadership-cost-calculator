@@ -136,76 +136,140 @@ def send_email(req: EmailReportRequest):
 
     subject = "Your Leadership Misalignment Cost Result"
 
-    html = f"""
-    <!doctype html>
-    <html lang="en">
-    <head>
-      <meta charset="utf-8" />
-      <meta name="viewport" content="width=device-width, initial-scale=1" />
-      <title>Leadership Misalignment Cost</title>
-      <style>
-        body {{
-          font-family: Arial, Helvetica, sans-serif;
-          color: #111;
-          margin: 0;
-          padding: 24px 18px;
-          background: #fff;
-          max-width: 680px;
-        }}
-        h2 {{ margin: 0 0 6px; }}
-        .muted {{ color: #666; font-size: 13px; }}
-        .box {{
-          margin-top: 14px;
-          padding: 14px;
-          border: 1px solid #e6e6e6;
-          border-radius: 10px;
-        }}
-        table {{ width: 100%; border-collapse: collapse; margin-top: 8px; }}
-        td {{ padding: 8px 0; border-bottom: 1px solid #f0f0f0; }}
-        td:last-child {{ text-align: right; font-weight: 700; }}
-        .cta {{
-          margin-top: 18px;
-          padding: 12px 14px;
-          border-radius: 10px;
-          background: #f7f7f7;
-        }}
-      </style>
-    </head>
-    <body>
-      <h2>Leadership Misalignment Cost</h2>
-      <div class="muted">The hidden cost of leadership drag inside your organisation.</div>
+    html = f"""<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Leadership Misalignment Cost</title>
+  <style>
+    body {{
+      font-family: Arial, Helvetica, sans-serif;
+      color: #111;
+      margin: 0;
+      padding: 24px 18px;
+      background: #fff;
+      max-width: 680px;
+    }}
+    h2 {{
+      margin: 0 0 6px;
+    }}
+    .muted {{
+      color: #666;
+      font-size: 13px;
+    }}
+    .lead {{
+      margin-top: 14px;
+      font-size: 15px;
+      line-height: 1.5;
+    }}
+    .box {{
+      margin-top: 14px;
+      padding: 14px;
+      border: 1px solid #e6e6e6;
+      border-radius: 10px;
+    }}
+    table {{
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+    }}
+    td {{
+      padding: 8px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }}
+    td:last-child {{
+      text-align: right;
+      font-weight: 700;
+    }}
+    .section-title {{
+      margin: 0 0 8px;
+      font-size: 14px;
+      font-weight: 700;
+      color: #333;
+    }}
+    .cta {{
+      margin-top: 18px;
+      padding: 14px;
+      border-radius: 10px;
+      background: #f7f7f7;
+      line-height: 1.5;
+    }}
+    .cta a {{
+      color: #111;
+      font-weight: 700;
+      text-decoration: none;
+    }}
+    .spacer {{
+      height: 10px;
+    }}
+  </style>
+</head>
+<body>
+  <h2>Leadership Misalignment Cost</h2>
+  <div class="muted">The hidden cost of leadership drag inside your organisation.</div>
 
-      <div class="box">
-        <div class="muted">Summary</div>
-        <table>
-          <tr><td>Monthly Leadership Cost</td><td>{AED(result.get("monthly_cost"))}</td></tr>
-          <tr><td>Annual Leadership Cost</td><td>{AED(result.get("annual_cost"))}</td></tr>
-          <tr><td>Cost Per Employee</td><td>{AED(result.get("cost_per_employee"))}</td></tr>
-          <tr><td>Recoverable Profit Opportunity (Annual)</td><td>{AED(result.get("recoverable_profit"))}</td></tr>
-        </table>
-      </div>
+  <div class="lead">
+    Based on the inputs provided, leadership misalignment may be costing approximately <strong>{AED(result.get("annual_cost"))} per year</strong>.
+  </div>
 
-      <div class="box">
-        <div class="muted">Benchmark</div>
-        <div style="margin-top:8px; line-height:1.5">
-          Benchmark: {float(result.get("industry_benchmark_pct", 0)):.1f}%<br/>
-          Your estimate: {float(result.get("user_misalignment_pct", 0)):.1f}%<br/>
-          Above benchmark: {float(result.get("excess_pct", 0)):.1f}%
-        </div>
-      </div>
+  <div class="box">
+    <div class="section-title">Summary</div>
+    <table>
+      <tr><td>Monthly Leadership Cost</td><td>{AED(result.get("monthly_cost"))}</td></tr>
+      <tr><td>Annual Leadership Cost</td><td>{AED(result.get("annual_cost"))}</td></tr>
+      <tr><td>Cost Per Employee</td><td>{AED(result.get("cost_per_employee"))}</td></tr>
+      <tr><td>Recoverable Profit Opportunity (Annual)</td><td>{AED(result.get("recoverable_profit"))}</td></tr>
+    </table>
+  </div>
 
-      <div class="cta">
-        Next step: if you want help turning this into a plan, reply to this email or book a call.
-        <div class="muted" style="margin-top:8px">Candoo Culture</div>
-      </div>
+  <div class="box">
+    <div class="section-title">Benchmark Comparison</div>
+    <div style="margin-top:8px; line-height:1.5">
+      Industry Benchmark: {float(result.get("industry_benchmark_pct", 0)):.1f}%<br/>
+      Your Estimate: {float(result.get("user_misalignment_pct", 0)):.1f}%<br/>
+      {"Above typical industry range." if float(result.get("excess_pct", 0)) > 0 else "Within typical industry range."}
+    </div>
+  </div>
 
-      <p class="muted" style="margin-top:16px">
-        Inputs captured: industry={inputs.get("industry")} | employees={inputs.get("total_employees")} |
-        avg_salary={inputs.get("avg_salary")} | misalignment_pct={inputs.get("misalignment_pct")}
-      </p>
-    </body>
-    </html>
-    """
+  <div class="box">
+    <div class="section-title">What this usually reflects</div>
+    <div style="line-height:1.6">
+      Leadership inefficiency rarely comes from one issue. It usually shows up through unclear priorities, slow decision-making, inconsistent expectations, and gaps in leadership capability.
+    </div>
+  </div>
+
+  <div class="cta">
+    <div class="section-title">What leaders typically do next</div>
+
+    <div>
+      <strong>Option 1 - Work through the alignment process internally</strong><br/>
+      Leadership Alignment Workbook - AED 97<br/>
+      <span class="muted">[Insert workbook payment link]</span>
+    </div>
+
+    <div class="spacer"></div>
+
+    <div>
+      <strong>Option 2 - Discuss the result</strong><br/>
+      If you want help translating this result into a practical plan for your leadership team, book a short strategy call.<br/>
+      <span class="muted">[Insert strategy call link]</span>
+    </div>
+
+    <div class="muted" style="margin-top:10px">Candoo Culture</div>
+  </div>
+
+  <p class="muted" style="margin-top:16px; line-height:1.5">
+    Inputs captured: industry={inputs.get("industry")} | employees={inputs.get("total_employees")} |
+    avg_salary={inputs.get("avg_salary")} | misalignment_pct={inputs.get("misalignment_pct")}
+  </p>
+
+  <p class="muted" style="margin-top:12px; line-height:1.5">
+    This estimate is based on benchmark ranges observed across leadership and engagement research including Gallup, McKinsey, and Deloitte studies.
+  </p>
+</body>
+</html>
+"""
 
     try:
         r = requests.post(
