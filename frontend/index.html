@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8" />
-    <title>Leadership Misalignment Cost</title>
+    <title>Leadership Performance Impact</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -322,13 +322,13 @@ small{
 
 <body>
     <div class="wrap">
-        <h1>Leadership Misalignment Cost</h1>
-        <div class="subhead">Estimate how leadership misalignment and management friction affect payroll productivity.</div>
+        <h1>Leadership Performance Impact</h1>
+        <div class="subhead">Estimate how leadership alignment influences execution quality, payroll efficiency, and recoverable enterprise value.</div>
 
         <div class="panel">
             <div class="info">
-                <strong>We’ve pre-filled the industry benchmark to help you start quickly.</strong><br />
-                You can adjust the estimate if you have internal data. Most organisations operate somewhere between 12% and 25% leadership inefficiency depending on structure, management clarity, and coordination load.
+                <strong>We’ve pre-loaded the sector benchmark to help you assess leadership performance with speed.</strong><br />
+                You can adjust the estimate using your own internal data. Across most organisations, leadership performance loss typically sits between 12% and 25% of payroll depending on role clarity, decision quality, and operating discipline.
             </div>
 
             <form id="form">
@@ -362,36 +362,36 @@ small{
                     <div>
                         <label for="avg_salary">Average Annual Salary (AED)</label>
                         <input id="avg_salary" name="avg_salary" type="number" step="0.01" min="0" required />
-                        <small>Average Annual Salary (total compensation)</small>
+                        <small>Average annual salary across the team, including total compensation.</small>
                     </div>
                 </div>
 
-                <label for="misalignment_pct">Estimated Misalignment (% of Payroll)</label>
+                <label for="misalignment_pct">Estimated Leadership Performance Loss (% of Payroll)</label>
                 <input id="misalignment_pct" name="misalignment_pct" type="number" step="0.1" min="0" max="100"
                     required />
                 <div class="helper">
-                    If you’re unsure, start with the benchmark. In most organisations leadership inefficiency typically falls between 12% and 25% of payroll depending on engagement levels and coordination friction.
+                    If you do not have internal data, start with the sector benchmark. In most organisations, leadership performance loss falls between 12% and 25% of payroll depending on alignment, decision speed, management consistency, and execution discipline.
                 </div>
 
-                <button class="btn" type="submit">Calculate</button>
+                <button class="btn" type="submit">Calculate Impact</button>
             </form>
 
             <div class="results" id="results">
                 <div class="grid">
                     <div class="metric">
-                        <div class="k">Monthly Leadership Cost</div>
+                        <div class="k">Monthly Performance Impact</div>
                         <div class="v" id="m_monthly">AED $0</div>
                     </div>
                     <div class="metric">
-                        <div class="k">Annual Leadership Cost</div>
+                        <div class="k">Annual Performance Impact</div>
                         <div class="v" id="m_annual">AED $0</div>
                     </div>
                     <div class="metric">
-                        <div class="k">Cost Per Employee</div>
+                        <div class="k">Impact Per Employee</div>
                         <div class="v" id="m_per">AED $0</div>
                     </div>
                     <div class="metric">
-                        <div class="k">Recoverable Profit Opportunity (Annual)</div>
+                        <div class="k">Recoverable Value Opportunity (Annual)</div>
                         <div class="v" id="m_rec">AED $0</div>
                     </div>
                 </div>
@@ -406,9 +406,9 @@ small{
                 <div class="status" id="status"></div>
 
                 <div class="cta">
-                    <a href="tel:+61455460580">Ask a question</a>
+                    <a href="tel:+61455460580">Speak with Candoo</a>
                     <a
-                        href="mailto:aaron@candooculture.com?subject=Leadership%20Misalignment%20Cost%20-%20Question">Explore How to Reduce This</a>
+                        href="mailto:aaron@candooculture.com?subject=Leadership%20Performance%20Impact%20-%20Consultation">Explore Performance Uplift</a>
                 </div>
             </div>
         </div>
@@ -442,30 +442,31 @@ small{
         }
 
         async function prefillBenchmark() {
-    const v = industry.value;
-    if (!v) return;
-    try {
-        const r = await fetch(`${API_BASE}/benchmarks/leadership-misalignment?industry=${encodeURIComponent(v)}`);
-        const j = await r.json();
-        if (j.industry_benchmark_pct != null && String(misalignment.value || "").trim() === "") {
-            misalignment.value = Number(j.industry_benchmark_pct).toFixed(1);
+            const v = industry.value;
+            if (!v) return;
+            try {
+                const r = await fetch(`${API_BASE}/benchmarks/leadership-misalignment?industry=${encodeURIComponent(v)}`);
+                const j = await r.json();
+                if (j.industry_benchmark_pct != null && String(misalignment.value || "").trim() === "") {
+                    misalignment.value = Number(j.industry_benchmark_pct).toFixed(1);
+                }
+            } catch (e) {}
         }
-    } catch (e) {}
-}
 
-industry.addEventListener("change", () => {
-    misalignment.value = "";
-    prefillBenchmark();
-});
+        industry.addEventListener("change", () => {
+            misalignment.value = "";
+            prefillBenchmark();
+        });
 
-industry.value = "";
-misalignment.value = "";
+        industry.value = "";
+        misalignment.value = "";
 
         form.addEventListener("submit", async (e) => {
             e.preventDefault();
             status.textContent = "";
             results.style.display = "none";
             lastInput = Object.fromEntries(new FormData(form).entries());
+
             Object.keys(lastInput).forEach(k => {
                 if (!isNaN(lastInput[k])) lastInput[k] = Number(lastInput[k]);
             });
@@ -491,20 +492,20 @@ misalignment.value = "";
                 const excess = Number(j.excess_pct || 0);
 
                 benchline.textContent =
-                    `Industry benchmark: ${bench.toFixed(1)}% | Your estimate: ${user.toFixed(1)}%` +
-                    (excess > 0 ? ` | Above typical industry range.` : ` | Within typical industry range.`);
+                    `Sector benchmark: ${bench.toFixed(1)}% | Your estimate: ${user.toFixed(1)}%` +
+                    (excess > 0 ? ` | Above benchmark range.` : ` | Within benchmark range.`);
 
                 const annual = fmtAED(j.annual_cost);
 
                 if (excess > 0) {
                     insight.textContent =
-                        `Leadership misalignment at this level may be costing roughly ${annual} per year. ` +
-                        `Organisations that improve clarity around roles, decision rights, and operating cadence often reduce this drag toward the 4–10% range.`;
+                        `At this level, leadership performance loss is eroding approximately ${annual} per year. ` +
+                        `Organisations that strengthen role clarity, decision rights, management consistency, and operating cadence typically reduce this closer to the 4–10% range.`;
                 } else {
                     insight.textContent =
-                        `This estimate sits within the range commonly observed across organisations. ` +
-                        `However, even typical leadership inefficiency represents meaningful payroll leakage. ` +
-                        `High-performing organisations usually reduce this closer to 4–10%.`;
+                        `This estimate sits within the range commonly seen across organisations. ` +
+                        `Even so, performance loss at this level still represents meaningful value erosion. ` +
+                        `High-performing organisations usually reduce this closer to the 4–10% range through sharper alignment, execution discipline, and leadership clarity.`;
                 }
 
                 results.style.display = "block";
@@ -519,6 +520,7 @@ misalignment.value = "";
                 status.textContent = "Enter a valid email.";
                 return;
             }
+
             if (!lastInput || !lastResult) {
                 status.textContent = "Run the calculator first.";
                 return;
