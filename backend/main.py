@@ -276,7 +276,7 @@ def send_email(req: EmailReportRequest):
             f"https://api.mailgun.net/v3/{mg_domain}/messages",
             auth=("api", mg_api_key),
             data={
-                "from": f"Candoo Culture Reports <{mg_sender}>",
+                "from": f"Candoo Insights <{mg_sender}>",
                 "to": [recipient],
                 "subject": subject,
                 "html": html,
