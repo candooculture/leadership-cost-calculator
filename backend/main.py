@@ -235,12 +235,12 @@ def send_email(req: EmailReportRequest):
   <div class="box">
     <div class="section-title">What this usually reflects</div>
     <div style="line-height:1.6">
-      Leadership inefficiency rarely comes from one issue. It usually shows up through unclear priorities, slow decision-making, inconsistent expectations, and gaps in leadership capability.
+      Leadership inefficiency rarely comes from one issue. It usually shows up through unclear priorities, slow decision-making, inconsistent expectations and gaps in leadership capability.
     </div>
   </div>
 
   <div class="cta">
-    <div class="section-title">What leaders typically do next</div>
+    <div class="section-title">Typical next steps</div>
 
     <div>
       <strong>Option 1 - Work through the alignment process internally</strong><br/>
@@ -252,7 +252,7 @@ def send_email(req: EmailReportRequest):
 
     <div>
       <strong>Option 2 - Discuss the result</strong><br/>
-      If you want help translating this result into a practical plan for your leadership team, book a short strategy call.<br/>
+      If you want help translating this result into a practical plan for your leadership team, book a short discovery call.<br/>
       <span class="muted">[Insert strategy call link]</span>
     </div>
 
