@@ -34,16 +34,12 @@ def load_benchmarks() -> Dict[str, float]:
 
 BENCHMARKS = load_benchmarks()
 
-app = FastAPI(title="Leadership Performance Impact API", version="1.0.0")
+app = FastAPI(title="Leadership Performance Impact API", version="1.1.0")
 
-# CORS
-# In production, set ALLOWED_ORIGINS to your Wix domain + your Render Static Site domain.
-# Example: https://www.yoursite.com,https://your-frontend.onrender.com
 allowed_origins_env = os.getenv("ALLOWED_ORIGINS", "").strip()
 if allowed_origins_env:
     allowed_origins = [o.strip() for o in allowed_origins_env.split(",") if o.strip()]
 else:
-    # Dev-friendly default. Tighten in production via ALLOWED_ORIGINS.
     allowed_origins = ["*"]
 
 app.add_middleware(
@@ -60,6 +56,7 @@ class LeadershipMisalignmentRequest(BaseModel):
     total_employees: int = Field(..., ge=1)
     avg_salary: float = Field(..., gt=0)
     misalignment_pct: float = Field(..., ge=0, le=100)
+    market: str | None = None
 
 
 class EmailReportRequest(BaseModel):
@@ -73,11 +70,18 @@ def get_industry_benchmark_pct(industry: str) -> float:
     return float(v) if v is not None else DEFAULT_BENCHMARK_PCT
 
 
-def AED(n: Any) -> str:
+def format_currency(n: Any, market: str | None) -> str:
     try:
-        return f"AED ${float(n):,.0f}"
+        value = float(n)
     except Exception:
-        return "AED $0"
+        value = 0.0
+
+    m = (market or "uae").lower()
+
+    if m in ["aud", "australia"]:
+        return f"AUD ${value:,.0f}"
+    else:
+        return f"AED ${value:,.0f}"
 
 
 @app.get("/health")
@@ -104,6 +108,8 @@ def run_calc(data: LeadershipMisalignmentRequest):
             industry_benchmark_pct=industry_benchmark_pct,
         )
 
+        market = data.market or "uae"
+
         return {
             "monthly_cost": r.monthly_cost,
             "annual_cost": r.annual_cost,
@@ -112,13 +118,16 @@ def run_calc(data: LeadershipMisalignmentRequest):
             "industry_benchmark_pct": r.industry_benchmark_pct,
             "user_misalignment_pct": r.user_misalignment_pct,
             "excess_pct": r.excess_pct,
+            "market": market,
         }
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.post("/send-leadership-misalignment-report")
 def send_email(req: EmailReportRequest):
+
     recipient = (req.email or "").strip()
     if "@" not in recipient:
         raise HTTPException(status_code=400, detail="Invalid email")
@@ -126,13 +135,14 @@ def send_email(req: EmailReportRequest):
     mg_api_key = os.getenv("MAILGUN_API_KEY", "").strip()
     mg_domain = os.getenv("MAILGUN_DOMAIN", "").strip()
     mg_sender = os.getenv("MAILGUN_SENDER", "").strip()
+
     if not (mg_api_key and mg_domain and mg_sender):
         raise HTTPException(status_code=500, detail="Missing Mailgun environment variables")
 
     inputs = req.inputs or {}
     result = req.result or {}
 
-    subject = "Your Leadership Performance Impact Result"
+    market = inputs.get("market") or result.get("market") or "uae"
 
     annual_cost = float(result.get("annual_cost", 0) or 0)
     monthly_cost = float(result.get("monthly_cost", 0) or 0)
@@ -147,9 +157,9 @@ def send_email(req: EmailReportRequest):
     if excess_pct > 0:
         insight_text = (
             f"At this level, leadership performance loss is eroding approximately "
-            f"<strong>{AED(annual_cost)} per year</strong>. Organisations that strengthen "
-            f"role clarity, decision rights, management consistency, and operating cadence "
-            f"typically reduce this closer to the 4 - 10% range."
+            f"<strong>{format_currency(annual_cost, market)} per year</strong>. "
+            f"Organisations that strengthen role clarity, decision rights, management consistency, "
+            f"and operating cadence typically reduce this closer to the 4 - 10% range."
         )
     else:
         insight_text = (
@@ -159,155 +169,103 @@ def send_email(req: EmailReportRequest):
             f"through sharper alignment, execution discipline, and leadership clarity."
         )
 
+    subject = "Your Leadership Performance Impact Result"
+
     html = f"""<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Leadership Performance Impact</title>
-  <style>
-    body {{
-      font-family: Arial, Helvetica, sans-serif;
-      color: #111111;
-      margin: 0;
-      padding: 24px 18px;
-      background: #ffffff;
-      max-width: 680px;
-    }}
-    h2 {{
-      margin: 0 0 6px;
-      font-size: 28px;
-      line-height: 1.2;
-    }}
-    .muted {{
-      color: #666666;
-      font-size: 13px;
-    }}
-    .lead {{
-      margin-top: 14px;
-      font-size: 15px;
-      line-height: 1.6;
-    }}
-    .box {{
-      margin-top: 14px;
-      padding: 14px;
-      border: 1px solid #e6e6e6;
-      border-radius: 10px;
-      background: #ffffff;
-    }}
-    table {{
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 8px;
-    }}
-    td {{
-      padding: 8px 0;
-      border-bottom: 1px solid #f0f0f0;
-      vertical-align: top;
-    }}
-    td:last-child {{
-      text-align: right;
-      font-weight: 700;
-      white-space: nowrap;
-    }}
-    .section-title {{
-      margin: 0 0 8px;
-      font-size: 14px;
-      font-weight: 700;
-      color: #333333;
-    }}
-    .cta {{
-      margin-top: 18px;
-      padding: 14px;
-      border-radius: 10px;
-      background: #f7f7f7;
-      line-height: 1.6;
-    }}
-    .cta a {{
-      color: #111111;
-      font-weight: 700;
-      text-decoration: none;
-    }}
-    .spacer {{
-      height: 10px;
-    }}
-    .note {{
-      margin-top: 14px;
-      color: #666666;
-      font-size: 13px;
-      line-height: 1.6;
-    }}
-  </style>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Leadership Performance Impact</title>
+<style>
+body {{
+font-family: Arial, Helvetica, sans-serif;
+color: #111111;
+margin: 0;
+padding: 24px 18px;
+background: #ffffff;
+max-width: 680px;
+}}
+h2 {{
+margin: 0 0 6px;
+font-size: 28px;
+line-height: 1.2;
+}}
+.muted {{
+color: #666666;
+font-size: 13px;
+}}
+.box {{
+margin-top: 14px;
+padding: 14px;
+border: 1px solid #e6e6e6;
+border-radius: 10px;
+background: #ffffff;
+}}
+table {{
+width: 100%;
+border-collapse: collapse;
+margin-top: 8px;
+}}
+td {{
+padding: 8px 0;
+border-bottom: 1px solid #f0f0f0;
+}}
+td:last-child {{
+text-align: right;
+font-weight: 700;
+white-space: nowrap;
+}}
+.section-title {{
+margin: 0 0 8px;
+font-size: 14px;
+font-weight: 700;
+}}
+</style>
 </head>
+
 <body>
-  <h2>Leadership Performance Impact</h2>
-  <div class="muted">A practical view of how leadership alignment influences execution quality, payroll efficiency, and recoverable enterprise value.</div>
 
-  <div class="lead">
-    Based on the inputs provided, leadership performance loss is impacting approximately <strong>{AED(annual_cost)} per year</strong>.
-  </div>
+<h2>Leadership Performance Impact</h2>
 
-  <div class="box">
-    <div class="section-title">Summary</div>
-    <table>
-      <tr><td>Monthly Performance Impact</td><td>{AED(monthly_cost)}</td></tr>
-      <tr><td>Annual Performance Impact</td><td>{AED(annual_cost)}</td></tr>
-      <tr><td>Impact Per Employee</td><td>{AED(cost_per_employee)}</td></tr>
-      <tr><td>Recoverable Value Opportunity (Annual)</td><td>{AED(recoverable_profit)}</td></tr>
-    </table>
-  </div>
+<p>
+Based on the inputs provided, leadership performance loss is impacting approximately
+<strong>{format_currency(annual_cost, market)} per year</strong>.
+</p>
 
-  <div class="box">
-    <div class="section-title">Benchmark Comparison</div>
-    <div style="margin-top:8px; line-height:1.6">
-      Sector Benchmark: {industry_benchmark_pct:.1f}%<br/>
-      Your Estimate: {user_misalignment_pct:.1f}%<br/>
-      {benchmark_status}
-    </div>
-  </div>
+<div class="box">
+<div class="section-title">Summary</div>
+<table>
+<tr><td>Monthly Performance Impact</td><td>{format_currency(monthly_cost, market)}</td></tr>
+<tr><td>Annual Performance Impact</td><td>{format_currency(annual_cost, market)}</td></tr>
+<tr><td>Impact Per Employee</td><td>{format_currency(cost_per_employee, market)}</td></tr>
+<tr><td>Recoverable Value Opportunity (Annual)</td><td>{format_currency(recoverable_profit, market)}</td></tr>
+</table>
+</div>
 
-  <div class="box">
-    <div class="section-title">Performance Readout</div>
-    <div style="line-height:1.6">
-      {insight_text}
-    </div>
-  </div>
+<div class="box">
+<div class="section-title">Benchmark Comparison</div>
+<div style="margin-top:8px; line-height:1.6">
+Sector Benchmark: {industry_benchmark_pct:.1f}%<br/>
+Your Estimate: {user_misalignment_pct:.1f}%<br/>
+{benchmark_status}
+</div>
+</div>
 
-  <div class="box">
-    <div class="section-title">What this usually reflects</div>
-    <div style="line-height:1.6">
-      Leadership performance loss rarely comes from one issue. It typically shows up through unclear priorities, slow decision-making, inconsistent management standards, blurred accountability, and reduced execution discipline across the business.
-    </div>
-  </div>
+<div class="box">
+<div class="section-title">Performance Readout</div>
+<div style="line-height:1.6">
+{insight_text}
+</div>
+</div>
 
-  <div class="cta">
-    <div class="section-title">Next Steps</div>
+<p class="muted" style="margin-top:14px">
+Inputs captured: industry={inputs.get("industry")} |
+employees={inputs.get("total_employees")} |
+avg_salary={inputs.get("avg_salary")} |
+misalignment_pct={inputs.get("misalignment_pct")}
+</p>
 
-    <div>
-      <strong>Option 1 - Strengthen alignment internally</strong><br/>
-      Leadership Alignment Workbook - AED 97<br/>
-      <span class="muted">[Insert workbook payment link]</span>
-    </div>
-
-    <div class="spacer"></div>
-
-    <div>
-      <strong>Option 2 - Explore performance uplift</strong><br/>
-      If you want help translating this result into a sharper leadership plan, book a short consultation with Candoo Culture.<br/>
-      <span class="muted">[Insert strategy call link]</span>
-    </div>
-
-    <div class="muted" style="margin-top:10px">Candoo Culture</div>
-  </div>
-
-  <p class="note">
-    Inputs captured: industry={inputs.get("industry")} | employees={inputs.get("total_employees")} |
-    avg_salary={inputs.get("avg_salary")} | misalignment_pct={inputs.get("misalignment_pct")}
-  </p>
-
-  <p class="note">
-    This estimate is directional and should be used as a leadership decision-support tool alongside internal business context, operating data, and management judgement.
-  </p>
 </body>
 </html>
 """
