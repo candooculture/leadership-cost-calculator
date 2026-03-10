@@ -169,28 +169,29 @@ def send_email(req: EmailReportRequest):
             f"through sharper alignment, execution discipline, and leadership clarity."
         )
 
-    subject = "Your Leadership Performance Impact Result"
-# ---- Lead capture to Google Sheet ----
+        subject = "Your Leadership Performance Impact Result"
 
-sheet_webhook = "https://script.google.com/macros/s/AKfycbx8t-KcrO5Ib9wF9iehQAB3mmHhkCWgs7JwtZGhaq60vMPL900x2Hfsahp9MDhL_WOs/exec"
+    # ---- Lead capture to Google Sheet ----
+    sheet_webhook = "https://script.google.com/macros/s/AKfycbx8t-KcrO5Ib9wF9iehQAB3mmHhkCWgs7JwtZGhaq60vMPL900x2Hfsahp9MDhL_WOs/exec"
 
-try:
-    payload = {
-        "email": recipient,
-        "market": market,
-        "industry": inputs.get("industry"),
-        "total_employees": inputs.get("total_employees"),
-        "avg_salary": inputs.get("avg_salary"),
-        "misalignment_pct": inputs.get("misalignment_pct"),
-        "annual_cost": annual_cost,
-        "monthly_cost": monthly_cost,
-        "recoverable_profit": recoverable_profit
-    }
+    try:
+        payload = {
+            "email": recipient,
+            "market": market,
+            "industry": inputs.get("industry"),
+            "total_employees": inputs.get("total_employees"),
+            "avg_salary": inputs.get("avg_salary"),
+            "misalignment_pct": inputs.get("misalignment_pct"),
+            "annual_cost": annual_cost,
+            "monthly_cost": monthly_cost,
+            "recoverable_profit": recoverable_profit,
+        }
 
-    requests.post(sheet_webhook, json=payload, timeout=5)
+        requests.post(sheet_webhook, json=payload, timeout=5)
 
-except Exception:
-    pass
+    except Exception:
+        pass
+
     html = f"""<!doctype html>
 <html lang="en">
 <head>
