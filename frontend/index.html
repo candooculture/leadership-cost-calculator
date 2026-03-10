@@ -68,6 +68,36 @@ h1{
     box-shadow:var(--shadow);
 }
 
+.market-toggle{
+    display:inline-flex;
+    gap:8px;
+    margin-bottom:18px;
+    padding:6px;
+    border:1px solid var(--line);
+    border-radius:16px;
+    background:#fafafa;
+}
+
+.market-btn{
+    min-width:88px;
+    padding:10px 14px;
+    border-radius:12px;
+    border:1px solid transparent;
+    background:transparent;
+    color:var(--text);
+    cursor:pointer;
+    font-weight:600;
+    font-size:.95rem;
+    transition:all .2s ease;
+}
+
+.market-btn.active{
+    background:var(--accent);
+    color:#183326;
+    border-color:rgba(72,241,145,.55);
+    box-shadow:0 6px 16px rgba(72,241,145,.18);
+}
+
 .info{
     margin-bottom:22px;
     padding:16px 18px;
@@ -316,6 +346,15 @@ small{
         width:100%;
     }
 
+    .market-toggle{
+        display:flex;
+        width:100%;
+    }
+
+    .market-btn{
+        flex:1;
+    }
+
 }
 </style>
 </head>
@@ -326,6 +365,11 @@ small{
         <div class="subhead">Estimate how leadership alignment influences execution quality, payroll efficiency, and recoverable enterprise value.</div>
 
         <div class="panel">
+            <div class="market-toggle" aria-label="Currency selection">
+                <button type="button" class="market-btn active" id="btn-uae">AED</button>
+                <button type="button" class="market-btn" id="btn-aus">AUD</button>
+            </div>
+
             <div class="info">
                 <strong>We’ve pre-loaded the sector benchmark to help you assess leadership performance with speed.</strong><br />
                 You can adjust the estimate using your own internal data. Across most organisations, leadership performance loss typically sits between 12% and 25% of payroll depending on role clarity, decision quality, and operating discipline.
@@ -360,15 +404,14 @@ small{
                         <input id="total_employees" name="total_employees" type="number" min="1" required />
                     </div>
                     <div>
-                        <label for="avg_salary">Average Annual Salary (AED)</label>
+                        <label for="avg_salary" id="avg_salary_label">Average Annual Salary (AED)</label>
                         <input id="avg_salary" name="avg_salary" type="number" step="0.01" min="0" required />
-                        <small>Average annual salary across the team, including total compensation.</small>
+                        <small id="avg_salary_help">Average annual salary across the team, including total compensation.</small>
                     </div>
                 </div>
 
                 <label for="misalignment_pct">Estimated Leadership Performance Loss (% of Payroll)</label>
-                <input id="misalignment_pct" name="misalignment_pct" type="number" step="0.1" min="0" max="100"
-                    required />
+                <input id="misalignment_pct" name="misalignment_pct" type="number" step="0.1" min="0" max="100" required />
                 <div class="helper">
                     If you do not have internal data, start with the sector benchmark. In most organisations, leadership performance loss falls between 12% and 25% of payroll depending on alignment, decision speed, management consistency, and execution discipline.
                 </div>
@@ -407,8 +450,7 @@ small{
 
                 <div class="cta">
                     <a href="tel:+61455460580">Speak with Candoo</a>
-                    <a
-                        href="mailto:aaron@candooculture.com?subject=Leadership%20Performance%20Impact%20-%20Consultation">Explore Performance Uplift</a>
+                    <a href="mailto:aaron@candooculture.com?subject=Leadership%20Performance%20Impact%20-%20Consultation">Explore Performance Uplift</a>
                 </div>
             </div>
         </div>
@@ -433,20 +475,65 @@ small{
         const sendBtn = document.getElementById("send");
         const status = document.getElementById("status");
 
+        const btnUae = document.getElementById("btn-uae");
+        const btnAus = document.getElementById("btn-aus");
+        const avgSalaryLabel = document.getElementById("avg_salary_label");
+
+        let market = "uae";
         let lastInput = null;
         let lastResult = null;
 
-        function fmtAED(n) {
+        function setMarket(nextMarket) {
+            market = nextMarket;
+
+            const isAustralia = market === "australia";
+
+            btnUae.classList.toggle("active", !isAustralia);
+            btnAus.classList.toggle("active", isAustralia);
+
+            avgSalaryLabel.textContent = isAustralia
+                ? "Average Annual Salary (AUD)"
+                : "Average Annual Salary (AED)";
+
+            if (lastResult) {
+                mMonthly.textContent = fmtCurrency(lastResult.monthly_cost);
+                mAnnual.textContent = fmtCurrency(lastResult.annual_cost);
+                mPer.textContent = fmtCurrency(lastResult.cost_per_employee);
+                mRec.textContent = fmtCurrency(lastResult.recoverable_profit);
+
+                const annual = fmtCurrency(lastResult.annual_cost);
+                const excess = Number(lastResult.excess_pct || 0);
+
+                if (excess > 0) {
+                    insight.textContent =
+                        `At this level, leadership performance loss is eroding approximately ${annual} per year. ` +
+                        `Organisations that strengthen role clarity, decision rights, management consistency, and operating cadence typically reduce this closer to the 4 - 10% range.`;
+                } else {
+                    insight.textContent =
+                        `This estimate sits within the range commonly seen across organisations. ` +
+                        `Even so, performance loss at this level still represents meaningful value erosion. ` +
+                        `High-performing organisations usually reduce this closer to the 4 - 10% range through sharper alignment, execution discipline, and leadership clarity.`;
+                }
+            }
+        }
+
+        btnUae.addEventListener("click", () => setMarket("uae"));
+        btnAus.addEventListener("click", () => setMarket("australia"));
+
+        function fmtCurrency(n) {
             const v = Number(n || 0);
-            return "AED $" + Math.round(v).toLocaleString("en-AU");
+            const prefix = market === "australia" ? "AUD $" : "AED $";
+            return prefix + Math.round(v).toLocaleString("en-AU");
         }
 
         async function prefillBenchmark() {
             const v = industry.value;
             if (!v) return;
+
             try {
                 const r = await fetch(`${API_BASE}/benchmarks/leadership-misalignment?industry=${encodeURIComponent(v)}`);
                 const j = await r.json();
+
                 if (j.industry_benchmark_pct != null && String(misalignment.value || "").trim() === "") {
                     misalignment.value = Number(j.industry_benchmark_pct).toFixed(1);
                 }
@@ -460,15 +547,20 @@ small{
 
         industry.value = "";
         misalignment.value = "";
+        setMarket("uae");
 
         form.addEventListener("submit", async (e) => {
             e.preventDefault();
             status.textContent = "";
             results.style.display = "none";
+
             lastInput = Object.fromEntries(new FormData(form).entries());
+            lastInput.market = market;
 
             Object.keys(lastInput).forEach(k => {
-                if (!isNaN(lastInput[k])) lastInput[k] = Number(lastInput[k]);
+                if (k !== "market" && !isNaN(lastInput[k])) {
+                    lastInput[k] = Number(lastInput[k]);
+                }
             });
 
             try {
@@ -477,15 +569,16 @@ small{
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(lastInput)
                 });
+
                 const j = await r.json();
                 if (!r.ok) throw new Error(j?.detail || "Request failed");
 
                 lastResult = j;
 
-                mMonthly.textContent = fmtAED(j.monthly_cost);
-                mAnnual.textContent = fmtAED(j.annual_cost);
-                mPer.textContent = fmtAED(j.cost_per_employee);
-                mRec.textContent = fmtAED(j.recoverable_profit);
+                mMonthly.textContent = fmtCurrency(j.monthly_cost);
+                mAnnual.textContent = fmtCurrency(j.annual_cost);
+                mPer.textContent = fmtCurrency(j.cost_per_employee);
+                mRec.textContent = fmtCurrency(j.recoverable_profit);
 
                 const bench = Number(j.industry_benchmark_pct || 0);
                 const user = Number(j.user_misalignment_pct || 0);
@@ -495,17 +588,17 @@ small{
                     `Sector benchmark: ${bench.toFixed(1)}% | Your estimate: ${user.toFixed(1)}%` +
                     (excess > 0 ? ` | Above benchmark range.` : ` | Within benchmark range.`);
 
-                const annual = fmtAED(j.annual_cost);
+                const annual = fmtCurrency(j.annual_cost);
 
                 if (excess > 0) {
                     insight.textContent =
                         `At this level, leadership performance loss is eroding approximately ${annual} per year. ` +
-                        `Organisations that strengthen role clarity, decision rights, management consistency, and operating cadence typically reduce this closer to the 4–10% range.`;
+                        `Organisations that strengthen role clarity, decision rights, management consistency, and operating cadence typically reduce this closer to the 4 - 10% range.`;
                 } else {
                     insight.textContent =
                         `This estimate sits within the range commonly seen across organisations. ` +
                         `Even so, performance loss at this level still represents meaningful value erosion. ` +
-                        `High-performing organisations usually reduce this closer to the 4–10% range through sharper alignment, execution discipline, and leadership clarity.`;
+                        `High-performing organisations usually reduce this closer to the 4 - 10% range through sharper alignment, execution discipline, and leadership clarity.`;
                 }
 
                 results.style.display = "block";
@@ -516,6 +609,7 @@ small{
 
         sendBtn.addEventListener("click", async () => {
             const addr = String(email.value || "").trim();
+
             if (!addr || !addr.includes("@")) {
                 status.textContent = "Enter a valid email.";
                 return;
@@ -530,13 +624,22 @@ small{
             sendBtn.disabled = true;
 
             try {
+                const payloadInputs = { ...lastInput, market };
+                const payloadResult = { ...lastResult, market };
+
                 const r = await fetch(`${API_BASE}/send-leadership-misalignment-report`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ email: addr, inputs: lastInput, result: lastResult })
+                    body: JSON.stringify({
+                        email: addr,
+                        inputs: payloadInputs,
+                        result: payloadResult
+                    })
                 });
+
                 const j = await r.json();
                 if (!r.ok) throw new Error(j?.detail || "Email send failed");
+
                 status.textContent = "Sent. Check your inbox.";
             } catch (e) {
                 status.textContent = "Could not send. Try again.";
